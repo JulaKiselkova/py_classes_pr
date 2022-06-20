@@ -3,7 +3,6 @@ import random
 from functools import reduce
 from datetime import datetime, date, timedelta
 
-
 class Item():
     def __init__(self, brand, problem):
         self.brand = brand
@@ -12,7 +11,6 @@ class Item():
     def setInfo(self, brand, problem):
         self.brand = brand
         self.problem = problem
-
 
 class Phone(Item):
     def __init__(self, brand, problem, os):
@@ -24,7 +22,7 @@ class Phone(Item):
         self.os = os
 
     def get_data(self):
-        return {"item": "Phone", "brand": self.brand, "problem": self.problem, "os": self.os}
+        return {"item": "phone", "brand": self.brand, "problem": self.problem, "os": self.os}
 
     def getInfo(self):
         return f"Phone. Brand {self.brand}. Problem {self.problem}. OS {self.os}"
@@ -42,7 +40,7 @@ class Laptop(Item):
         self.year = year
 
     def get_data(self):
-        return {"item": "Laptop", "brand": self.brand, "problem": self.problem, "os": self.os, "year": self.year}
+        return {"item": "laptop", "brand": self.brand, "problem": self.problem, "os": self.os, "year": self.year}
 
     def getInfo(self):
         return f"Phone. Brand {self.brand}. Problem {self.problem}. OS {self.os}. Year {self.year}"
@@ -58,14 +56,13 @@ class TV(Item):
         self.diagonal = diagonal
 
     def getInfo(self):
-        return f"Phone. Brand {self.brand}. Problem {self.problem}. Diagonal {self.diagonal}."
+        return f"Tv. Brand {self.brand}. Problem {self.problem}. Diagonal {self.diagonal}."
 
     def get_data(self):
-        return {"item": "Tv", "brand": self.brand, "problem": self.problem, "diagonal": self.diagonal}
+        return {"item": "tv", "brand": self.brand, "problem": self.problem, "diagonal": self.diagonal}
 
 
 class Receipt:
-
     def __init__(self, id, type, name, fixed_data, repair_data, status):
         self.id = id
         self.type = type
@@ -90,12 +87,6 @@ class Receipt:
 
 is_open = input('Is the shop open?')
 
-order = "order"
-info = "info"
-phone = "phone"
-tv = "tv"
-laptop = "laptop"
-set_of_types = {phone, tv, laptop}
 id = 0
 
 dataBase = []
@@ -122,22 +113,11 @@ def find_order_by_id_or_name(marker, type, list_of_orders):
             return "Order not found"
 
 
-def add_to_file(data):
-    for item in data:
-        with open("data.csv", "a") as file:
-            writer = csv.writer(file)
-            writer.writerow(item)
-
-
-with open("data.csv", "w") as file:
-    writer = csv.writer(file)
-    writer.writerow(
-        ("id", "type", "name", "fixed_data", "repair_data", "status"))
-
+file = open("otus.txt", "a")
 
 while is_open == 'yes':
     type_of_service = input("Would you like to make an order or see the info?")
-    if(type_of_service == order):
+    if(type_of_service == "order"):
         delta_day = timedelta(days=random.randint(1, 5))
         id = id + 1
         name = input('name: ')
@@ -145,36 +125,41 @@ while is_open == 'yes':
         status = "accepted"
         fixed_data = datetime.now()
         repair_data = fixed_data.date() + delta_day
-        if(type == phone):
+        info = "none"
+        if(type == "phone"):
             brand = input('What is your brand: ')
             problem = input('What is your problem: ')
             os = input('What is your os: ')
             phone = Phone(brand, problem, os)
+            info = phone.getInfo()
             res = Receipt(id, type, name, fixed_data.date(),
                           repair_data, status)
             res.addOrder(dataBase, phone.get_data())
-        elif(type == tv):
+        elif(type == "tv"):
             brand = input('What is your brand: ')
             problem = input('What is your problem: ')
             diagonal = input('What is your diagonal: ')
             res = Receipt(id, type, name, fixed_data.date(),
                           repair_data, status)
             tv = TV(brand, problem, diagonal)
+            info = tv.getInfo()
             res.addOrder(dataBase, tv.get_data())
-        elif(type == laptop):
+        elif(type == "laptop"):
             brand = input('What is your brand: ')
             problem = input('What is your problem: ')
             os = input('What is your os: ')
             year = input('What is your year: ')
             laptop = Laptop(brand, problem, os, year)
+            info = laptop.getInfo()
             res = Receipt(id, type, name, fixed_data.date(),
                           repair_data, status)
             res.addOrder(dataBase, laptop.get_data())
         else:
             print("We are not working with this type")
-            add_to_file(dataBase)
         print(dataBase)
-    elif(type_of_service == info):
+        file.write(f"{res.getInfo()}\n")
+        file.write(f"Id: {id}. {info}\n")
+    elif(type_of_service == "info"):
         print("infoooo")
         id_or_name = input("Would you like to find by id or by name?")
         marker = input("Enter?")
@@ -183,3 +168,4 @@ while is_open == 'yes':
     else:
         print("mistake")
     is_open = input('Is the shop open?')
+file.close()
